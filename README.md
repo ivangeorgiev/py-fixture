@@ -1,4 +1,7 @@
 # py-fixture
+
+[![Documentation Status](https://readthedocs.org/projects/py-fixture/badge/?version=latest)](https://py-fixture.readthedocs.io/en/latest/?badge=latest)
+
 `pytest` style fixtures
 
 Features:
