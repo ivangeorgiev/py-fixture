@@ -5,6 +5,7 @@ Features:
 
 * `fixture` decorator to mark function as fixture factory
 * *Fixture Scope* - unit of work for fixture value evaluation
+* *Fixture Context* - Fixture Scope is also a context manager
 * *Value Cache* - Fixture value is evaluated only once per scope
 * *Fixture Factory Argument Replacement* - Invoke fixture factory with replaced arguments
 * *Generator Fixture* - Generator function could be used as fixture factory
@@ -37,6 +38,7 @@ scope.get_fixture_value('x')
 This example build on the basic example by demostrating additional features:
 
 * Fixture factory argument replacement
+* Fixture Context - fixture scope using context manager
 * Generator fixture
 * Scope tear down
 * Generator fixture tear down
@@ -62,13 +64,18 @@ def z(x, y):
     yield x + y
     print("Tear down z")
 
-scope = FixtureScope()
-assert scope.get_fixture_value("z") == 3
+with FixtureScope() as scope:
+    print("Get z for the first time")
+    assert scope.get_fixture_value("z") == 3
+    print("Get z for the second time")
+    assert scope.get_fixture_value("z") == 3
+    print("Finish scope")
+# Get z for the first time
 # Evaluate x
 # Evaluate y
 # Evaluate z
-assert scope.get_fixture_value("z") == 3
-scope.finish()
+# Get z for the second time
+# Finish scope
 # Tear down z
 # Tear down y
 # Tear down x

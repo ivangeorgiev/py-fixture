@@ -45,6 +45,12 @@ class TestFixtureScopeClass:
         fixture_scope.finish()
         assert registered_generator_fixture._tests_fixture_torn_down
 
+    @patch.object(FixtureScope, "finish")
+    def test_scope_as_context_manager(self, mock_finish, registry):
+        with FixtureScope(registry) as context:
+            assert isinstance(context, FixtureScope)
+        mock_finish.assert_called_once()
+
 
 @pytest.fixture(name="registry")
 def given_registry():
@@ -53,6 +59,11 @@ def given_registry():
 @pytest.fixture(name="fixture_scope")
 def given_fixture_scope(registry):
     yield FixtureScope(registry)
+
+@pytest.fixture(name="fixture_context")
+def given_fixture_context(registry):
+    with FixtureScope(registry) as scope:
+        yield scope
 
 @pytest.fixture(name="registered_fixture")
 def given_registered_fixture(registry: FixtureDefs):

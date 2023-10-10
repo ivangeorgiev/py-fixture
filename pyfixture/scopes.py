@@ -36,6 +36,12 @@ class FixtureScope:
         self._registry = registry or default_registry
         self._value_cache = OrderedDict()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.finish()
+
     def get_fixture_value(self, name):
         self._ensure_in_cache(name)
         return self._value_cache[name].value
