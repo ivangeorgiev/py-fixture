@@ -1,3 +1,5 @@
+myst-parser
 pre-commit
 pytest
 pytest-cov
+sphinx
