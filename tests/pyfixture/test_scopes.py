@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from pyfixture.exceptions import FixtureDoesNotExist
 from pyfixture.fixturedefs import FixtureDef, FixtureDefs, default_registry
 from pyfixture.scopes import FixtureClosure, FixtureScope
 
@@ -53,6 +54,25 @@ class TestFixtureScopeClass:
         with FixtureScope(registry) as context:
             assert isinstance(context, FixtureScope)
         mock_finish.assert_called_once()
+
+    @pytest.mark.usefixtures("registered_fixture")
+    def test_bind_should_raise_exeception_arguments_do_not_match_fixture(self, fixture_scope: FixtureScope):
+        def some_function(some_argument, fixture):
+            return f"got `{fixture}` and `{some_argument}`"
+
+        with pytest.raises(FixtureDoesNotExist):
+            fixture_scope.bind(some_function)
+
+    @pytest.mark.usefixtures("registered_fixture")
+    def test_bind_should_bind_arguments_to_known_fixtures_by_name_with_ignore_missing(
+        self, fixture_scope: FixtureScope
+    ):
+        def some_function(some_argument, fixture):
+            return f"got `{fixture}` and `{some_argument}`"
+
+        bound = fixture_scope.bind(some_function, ignore_missing=True)
+        result = bound("passed argument")
+        assert result == "got `fixture value` and `passed argument`"
 
 
 @pytest.fixture(name="registry")

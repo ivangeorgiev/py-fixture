@@ -1,6 +1,7 @@
 import inspect
 from collections import OrderedDict
 from collections.abc import Generator
+from functools import partial
 from typing import Any
 
 from .fixturedefs import FixtureDef, FixtureDefs, default_registry
@@ -52,6 +53,18 @@ class FixtureScope:
         for name in reversed(self._value_cache.keys()):
             self._value_cache[name].finish()
         self._value_cache.clear()
+
+    def bind(self, func, ignore_missing=False):
+        signature = inspect.signature(func)
+        if ignore_missing:
+            args = {
+                param_name: self.get_fixture_value(param_name)
+                for param_name in signature.parameters
+                if self._registry.exists(param_name)
+            }
+        else:
+            args = {param_name: self.get_fixture_value(param_name) for param_name in signature.parameters}
+        return partial(func, **args)
 
     def _ensure_in_cache(self, fixture_name):
         if fixture_name in self._value_cache:
