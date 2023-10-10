@@ -64,17 +64,25 @@ def z(x, y):
     yield x + y
     print("Tear down z")
 
+def i_am_not_fixture(a, x, y, z):
+    print(f"i_am_not_function: a: {a}, x: {x}, y:{y}, z:{z}")
+
 with FixtureScope() as scope:
     print("Get z for the first time")
     assert scope.get_fixture_value("z") == 3
     print("Get z for the second time")
     assert scope.get_fixture_value("z") == 3
+    print("Bind a function")
+    binded = scope.bind(i_am_not_fixture)
+    binded(200)
     print("Finish scope")
 # Get z for the first time
 # Evaluate x
 # Evaluate y
 # Evaluate z
 # Get z for the second time
+# Bind a function
+# i_am_not_function: a:200, x: 1, y:2, z:3
 # Finish scope
 # Tear down z
 # Tear down y
