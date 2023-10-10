@@ -1,4 +1,5 @@
 import pytest
+
 from pyfixture.exceptions import FixtureDoesNotExist
 from pyfixture.fixturedefs import FixtureDef, FixtureDefs
 

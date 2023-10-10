@@ -1,12 +1,14 @@
 import dataclasses
 import inspect
-from typing import Callable
+from collections.abc import Callable
+
 from .fixturedefs import FixtureDef, default_registry
+
 
 @dataclasses.dataclass(frozen=True)
 class FixtureFunctionDecorator:
     name: str
-    
+
     def __call__(self, func: Callable):
         if inspect.isclass(func):
             raise ValueError("class fixtures are not supported")
@@ -15,6 +17,7 @@ class FixtureFunctionDecorator:
         definition = FixtureDef(name, func)
         default_registry.put(definition)
         return func
+
 
 def fixture(func=None, *, name=None):
     """

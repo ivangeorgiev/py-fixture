@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Callable
+from collections.abc import Callable
 
 from .exceptions import FixtureDoesNotExist
 

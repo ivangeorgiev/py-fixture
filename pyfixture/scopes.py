@@ -1,6 +1,8 @@
-from collections import OrderedDict
 import inspect
-from typing import Any, Generator
+from collections import OrderedDict
+from collections.abc import Generator
+from typing import Any
+
 from .fixturedefs import FixtureDef, FixtureDefs, default_registry
 
 
@@ -11,7 +13,7 @@ class FixtureClosure:
         self.value = value
 
     def finish(self):
-        pass # pragma: no cover
+        pass  # pragma: no cover
 
 
 class GeneratorFixtureClosure(FixtureClosure):
@@ -19,7 +21,7 @@ class GeneratorFixtureClosure(FixtureClosure):
 
     def __init__(self, gen):
         self.gen = gen
-        self.value = next(gen)
+        super().__init__(next(gen))
 
     def finish(self):
         try:

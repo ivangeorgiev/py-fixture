@@ -1,12 +1,13 @@
 from unittest.mock import Mock
 
 import pytest
+
 from pyfixture.decorators import fixture
-from pyfixture.fixturedefs import default_registry, FixtureDef
+from pyfixture.fixturedefs import FixtureDef, default_registry
 
 
 def assert_fixture_def(expected: FixtureDef, actual: dict):
-    __tracebackhide__ = True
+    __tracebackhide__ = True  # pylint: disable=unused-variable
     if isinstance(expected, FixtureDef):
         expected = expected.as_dict()
     if isinstance(actual, FixtureDef):
