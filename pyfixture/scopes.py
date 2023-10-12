@@ -4,6 +4,8 @@ from collections.abc import Generator
 from functools import partial
 from typing import Any
 
+from pyfixture.exceptions import RecursiveFixtureEvaluation
+
 from .fixturedefs import FixtureDef, FixtureDefs, default_registry
 
 
@@ -34,10 +36,12 @@ class GeneratorFixtureClosure(FixtureClosure):
 class FixtureScope:
     _registry: FixtureDefs
     _value_cache: OrderedDict[str, FixtureClosure]
+    _evaluation_stack: list
 
     def __init__(self, registry: FixtureDefs = None):
         self._registry = registry or default_registry
         self._value_cache = OrderedDict()
+        self._evaluation_stack = []
 
     def __enter__(self):
         return self
@@ -46,7 +50,12 @@ class FixtureScope:
         self.finish()
 
     def get_fixture_value(self, name):
+        if name in self._evaluation_stack:
+            msg = f"Recursive fixture evaluation detected for fixture `{name}`. Evaluation order: {', '.join(self._evaluation_stack)}, {name}"
+            raise RecursiveFixtureEvaluation(msg)
+        self._evaluation_stack.append(name)
         self._ensure_in_cache(name)
+        self._evaluation_stack.pop()
         return self._value_cache[name].value
 
     def finish(self):

@@ -14,6 +14,7 @@ Features:
 * *Generator Fixture* - Generator function could be used as fixture factory
 * *Scope tear down* - through `.finish()` method. Individual fixtures are torn down in reverse order of their evaluation
 * *Generator fixture tear down*
+* *Detect recursive evaluation*
 
 ## Examples
 
@@ -76,7 +77,7 @@ with FixtureScope() as scope:
     print("Get z for the second time")
     assert scope.get_fixture_value("z") == 3
     print("Bind a function")
-    binded = scope.bind(i_am_not_fixture)
+    binded = scope.bind(i_am_not_fixture, ignore_missing=True)
     binded(200)
     print("Finish scope")
 # Get z for the first time
@@ -90,6 +91,40 @@ with FixtureScope() as scope:
 # Tear down z
 # Tear down y
 # Tear down x
+```
+
+Fixtures can have other fixtures as parameters. Parameters are evaluated and replaced automatcally:
+
+```python
+@fixture
+def theta(z):
+    print("Theta: {z}")
+    return 2 * z
+
+with FixtureScope() as scope:
+    print(scope.get_fixture_value("theta"))
+```
+
+Recursive fixture evaluation detected automatically and `RecursiveFixtureEvaluation` exception is raised:
+
+```python
+from pyfixture import fixture, FixtureScope
+
+@fixture
+def one(two):
+    pass
+
+@fixture
+def two(three):
+    pass
+
+@fixture
+def three(one):
+    pass
+
+with FixtureScope() as s:
+    s.get_fixture_value("one")
+
 ```
 
 ### Reallistic Example
