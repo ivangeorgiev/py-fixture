@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pyfixture.exceptions import FixtureDoesNotExist
+from pyfixture.exceptions import FixtureDoesNotExist, RecursiveFixtureEvaluation
 from pyfixture.fixturedefs import FixtureDef, FixtureDefs, default_registry
 from pyfixture.scopes import FixtureClosure, FixtureScope
 
@@ -73,6 +73,23 @@ class TestFixtureScopeClass:
         bound = fixture_scope.bind(some_function, ignore_missing=True)
         result = bound("passed argument")
         assert result == "got `fixture value` and `passed argument`"
+
+    def test_detect_recursive_fixture_evaluation(self, fixture_scope: FixtureScope):
+        def one(two):
+            return two
+
+        def two(one):
+            return one
+
+        registry = fixture_scope._registry
+        registry.put(FixtureDef("one", one))
+        registry.put(FixtureDef("two", two))
+
+        with pytest.raises(
+            RecursiveFixtureEvaluation,
+            match="Recursive fixture evaluation detected for fixture `one`. Evaluation order: one, two, one",
+        ):
+            fixture_scope.get_fixture_value("one")
 
 
 @pytest.fixture(name="registry")

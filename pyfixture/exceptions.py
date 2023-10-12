@@ -4,3 +4,7 @@ class PyFixtureException(Exception):
 
 class FixtureDoesNotExist(PyFixtureException):
     pass
+
+
+class RecursiveFixtureEvaluation(PyFixtureException):
+    pass
